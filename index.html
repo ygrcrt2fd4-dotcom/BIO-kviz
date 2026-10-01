@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Biológia ABC Kvíz 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #07090e;
+            --card-bg: rgba(18, 26, 43, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-green: #10b981;
+            --accent-cyan: #06b6d4;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 2026 Neon Glow Backgrounds */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            filter: blur(140px);
+            z-index: -1;
+        }
+        body::before { background: var(--accent-purple); top: 5%; left: 5%; }
+        body::after { background: var(--accent-cyan); bottom: 5%; right: 5%; }
+
+        .quiz-card {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            background: rgba(6, 182, 212, 0.12);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            color: var(--accent-cyan);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 100px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 10%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 100px;
+            transition: width 0.3s ease;
+        }
+
+        .question-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            line-height: 1.45;
+            margin-bottom: 20px;
+            color: #fff;
+            min-height: 60px;
+        }
+
+        .abc-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .abc-btn {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 14px 18px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .abc-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Stylized ABC Badges */
+        .abc-letter {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--accent-cyan);
+            transition: all 0.2s ease;
+        }
+
+        /* Correct & Wrong States */
+        .abc-btn.correct {
+            background: rgba(16, 185, 129, 0.18);
+            border-color: var(--accent-green);
+        }
+        .abc-btn.correct .abc-letter {
+            background: var(--accent-green);
+            color: #000;
+        }
+
+        .abc-btn.wrong {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: var(--accent-red);
+        }
+        .abc-btn.wrong .abc-letter {
+            background: var(--accent-red);
+            color: #fff;
+        }
+
+        /* Result Overlay */
+        .result-box {
+            text-align: center;
+            padding: 16px 0;
+        }
+
+        .score-big {
+            font-size: 3.8rem;
+            font-weight: 800;
+            margin: 12px 0;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-restart {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 24px;
+            box-shadow: 0 10px 25px rgba(6, 182, 212, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .btn-restart:active {
+            transform: scale(0.98);
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-card">
+        
+        <!-- Quiz Screen -->
+        <div id="quiz-screen">
+            <div class="header">
+                <span class="badge">ABC BIOLÓGIA 2026</span>
+                <span id="q-counter" class="progress-text">1 / 10</span>
+            </div>
+            
+            <div class="progress-bar-bg">
+                <div id="progress-fill" class="progress-bar-fill"></div>
+            </div>
+
+            <h2 id="q-title" class="question-title">Načítavam otázku...</h2>
+
+            <div id="abc-container" class="abc-grid"></div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="result-box hidden">
+            <span class="badge">VÝSLEDKY</span>
+            <h1 style="margin-top: 14px; font-size: 1.8rem;">Kvíz dokončený! 🎉</h1>
+            <div id="score-val" class="score-big">0 / 10</div>
+            <p id="feedback-msg" class="progress-text" style="font-size: 1rem; color: var(--text-main);">Výborný výkon!</p>
+            <button class="btn-restart" onclick="restartQuiz()">Hrať znova 🔄</button>
+        </div>
+
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                title: "Ktorá časť bunky produkuje energiu (elektráreň bunky)?",
+                letters: ["A", "B", "C", "D"],
+                options: ["Jadro", "Mitochondria", "Ribozóm", "Golgiho aparát"],
+                correct: 1
+            },
+            {
+                title: "Ktorá krvná skupina je univerzálnym darcom červených krviniek?",
+                letters: ["A", "B", "C", "D"],
+                options: ["Skupina A", "Skupina B", "Skupina AB", "Skupina 0"],
+                correct: 3
+            },
+            {
+                title: "Ako sa nazýva zelené farbivo zachytávajúce svetlo v rastlinách?",
+                letters: ["A", "B", "C", "D"],
+                options: ["Karotén", "Chlorofyl", "Hemoglobín", "Melatón"],
+                correct: 1
+            },
+            {
+                title: "Koľko komôr má ľudské srdce?",
+                letters: ["A", "B", "C", "D"],
+                options: ["2 komory", "3 komory", "4 komory", "6 komôr"],
+                correct: 2
+            },
+            {
+                title: "Ktorý orgán v ľudskom tele produkuje inzulín?",
+                letters: ["A", "B", "C", "D"],
+                options: ["Pečeň", "Slezina", "Obličky", "Pankreas (podžalúdková žľaza)"],
+                correct: 3
+            },
+            {
+                title: "Aká kyselina tvorí základ genetickej informácie človeka?",
+                letters: ["A", "B", "C", "D"],
+                options: ["DNA", "RNA", "Kyselina sírová", "Kyselina močová"],
+                correct: 0
+            },
+            {
+                title: "Ako sa nazýva proces, pri ktorom rastliny tvorí kyslík a cukor?",
+                letters: ["A", "B", "C", "D"],
+                options: ["Dýchanie", "Fotosyntéza", "Kvasenie", "Evolúcia"],
+                correct: 1
+            },
+            {
+                title: "Ktorá kost je najdlhšia a najsilnejšia v ľudskom tele?",
+                letters: ["A", "B", "C", "D"],
+                options: ["Ramenbná kosť", "Píšťala", "Stehnová kosť", "Kľúčna kosť"],
+                correct: 2
+            },
+            {
+                title: "Čo prenáša kyslík v ľudskej krvi?",
+                letters: ["A", "B", "C", "D"],
+                options: ["Inzulín", "Hemoglobín", "Fibrín", "Plazma"],
+                correct: 1
+            },
+            {
+                title: "Do akej triedy živočíchov patria veľryby a delfíny?",
+                letters: ["A", "B", "C", "D"],
+                options: ["Ryby", "Obojživelníky", "Plazy", "Cicavce"],
+                correct: 3
+            }
+        ];
+
+        let currentIdx = 0;
+        let userScore = 0;
+        let canTap = true;
+
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const qTitle = document.getElementById('q-title');
+        const abcContainer = document.getElementById('abc-container');
+        const qCounter = document.getElementById('q-counter');
+        const progressFill = document.getElementById('progress-fill');
+        const scoreVal = document.getElementById('score-val');
+        const feedbackMsg = document.getElementById('feedback-msg');
+
+        function loadQuestion() {
+            canTap = true;
+            const item = quizData[currentIdx];
+
+            qCounter.innerText = `${currentIdx + 1} / 10`;
+            progressFill.style.width = `${((currentIdx + 1) / 10) * 100}%`;
+            qTitle.innerText = item.title;
+
+            abcContainer.innerHTML = '';
+            item.options.forEach((optText, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'abc-btn';
+                
+                btn.innerHTML = `
+                    <div class="abc-letter">${item.letters[index]}</div>
+                    <div>${optText}</div>
+                `;
+
+                btn.onclick = () => handleAnswer(index, btn);
+                abcContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, clickedBtn) {
+            if (!canTap) return;
+            canTap = false;
+
+            const correctIdx = quizData[currentIdx].correct;
+            const buttons = abcContainer.children;
+
+            if (selectedIndex === correctIdx) {
+                clickedBtn.classList.add('correct');
+                userScore++;
+            } else {
+                clickedBtn.classList.add('wrong');
+                buttons[correctIdx].classList.add('correct');
+            }
+
+            setTimeout(() => {
+                currentIdx++;
+                if (currentIdx < quizData.length) {
+                    loadQuestion();
+                } else {
+                    renderResults();
+                }
+            }, 1100);
+        }
+
+        function renderResults() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            scoreVal.innerText = `${userScore} / 10`;
+
+            if (userScore === 10) {
+                feedbackMsg.innerText = "Neskutočné! Máš plný počet bodov! 🏆";
+            } else if (userScore >= 7) {
+                feedbackMsg.innerText = "Skvelý výsledok! Biológiu máš v malíčku. 🔥";
+            } else if (userScore >= 5) {
+                feedbackMsg.innerText = "Dobré! Slušné vedomosti. 👍";
+            } else {
+                feedbackMsg.innerText = "Skús to ešte raz a prekonaj sa! 😉";
+            }
+        }
+
+        function restartQuiz() {
+            currentIdx = 0;
+            userScore = 0;
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
